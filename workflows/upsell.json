@@ -18,7 +18,7 @@
                 "task_key": "bronze_customers",
                 "run_if": "ALL_SUCCESS",
                 "notebook_task": {
-                    "notebook_path": "src/bronze/ingestao",
+                    "notebook_path": "src/bronze/ingestion",
                     "base_parameters": {
                         "tablename": "customers",
                         "id_field": "idCustomer",
@@ -40,7 +40,7 @@
                 "task_key": "bronze_transactions",
                 "run_if": "ALL_SUCCESS",
                 "notebook_task": {
-                    "notebook_path": "src/bronze/ingestao",
+                    "notebook_path": "src/bronze/ingestion",
                     "base_parameters": {
                         "tablename": "transactions",
                         "id_field": "idTransaction",
@@ -62,7 +62,7 @@
                 "task_key": "bronze_transactions_product",
                 "run_if": "ALL_SUCCESS",
                 "notebook_task": {
-                    "notebook_path": "src/bronze/ingestao",
+                    "notebook_path": "src/bronze/ingestion",
                     "base_parameters": {
                         "tablename": "transactions_product",
                         "id_field": "idTransactionCart",
@@ -81,7 +81,7 @@
                 "webhook_notifications": {}
             },
             {
-                "task_key": "silver_cliente",
+                "task_key": "silver_customers",
                 "depends_on": [
                     {
                         "task_key": "bronze_customers"
@@ -89,10 +89,10 @@
                 ],
                 "run_if": "ALL_SUCCESS",
                 "notebook_task": {
-                    "notebook_path": "src/silver/ingestao",
+                    "notebook_path": "src/silver/ingestion",
                     "base_parameters": {
-                        "tablename": "cliente",
-                        "id_field": "idCliente",
+                        "tablename": "customers",
+                        "id_field": "customer_id",
                         "id_field_old": "idCustomer"
                     },
                     "source": "GIT"
@@ -102,7 +102,7 @@
                 "email_notifications": {}
             },
             {
-                "task_key": "silver_transacao_produto",
+                "task_key": "silver_transactions_product",
                 "depends_on": [
                     {
                         "task_key": "bronze_transactions_product"
@@ -110,10 +110,10 @@
                 ],
                 "run_if": "ALL_SUCCESS",
                 "notebook_task": {
-                    "notebook_path": "src/silver/ingestao",
+                    "notebook_path": "src/silver/ingestion",
                     "base_parameters": {
-                        "tablename": "transacao_produto",
-                        "id_field": "idTransacaoProduto",
+                        "tablename": "transactions_product",
+                        "id_field": "cart_id",
                         "id_field_old": "idTransactionCart"
                     },
                     "source": "GIT"
@@ -123,7 +123,7 @@
                 "email_notifications": {}
             },
             {
-                "task_key": "silver_transacoes",
+                "task_key": "silver_transactions",
                 "depends_on": [
                     {
                         "task_key": "bronze_transactions"
@@ -131,10 +131,10 @@
                 ],
                 "run_if": "ALL_SUCCESS",
                 "notebook_task": {
-                    "notebook_path": "src/silver/ingestao",
+                    "notebook_path": "src/silver/ingestion",
                     "base_parameters": {
-                        "tablename": "transacoes",
-                        "id_field": "idTransacao",
+                        "tablename": "transactions",
+                        "id_field": "transaction_id",
                         "id_field_old": "idTransaction"
                     },
                     "source": "GIT"
@@ -144,7 +144,7 @@
                 "email_notifications": {}
             },
             {
-                "task_key": "silver_produtos",
+                "task_key": "silver_products",
                 "depends_on": [
                     {
                         "task_key": "bronze_transactions_product"
@@ -152,10 +152,10 @@
                 ],
                 "run_if": "ALL_SUCCESS",
                 "notebook_task": {
-                    "notebook_path": "src/silver/ingestao",
+                    "notebook_path": "src/silver/ingestion",
                     "base_parameters": {
-                        "tablename": "produtos",
-                        "id_field": "descProduto",
+                        "tablename": "products",
+                        "id_field": "product_name",
                         "id_field_old": "NameProduct"
                     },
                     "source": "GIT"
@@ -168,15 +168,15 @@
                 "task_key": "gold_daily_report",
                 "depends_on": [
                     {
-                        "task_key": "silver_transacoes"
+                        "task_key": "silver_transactions"
                     },
                     {
-                        "task_key": "silver_transacao_produto"
+                        "task_key": "silver_transactions_product"
                     }
                 ],
                 "run_if": "ALL_SUCCESS",
                 "notebook_task": {
-                    "notebook_path": "src/gold/ingestao",
+                    "notebook_path": "src/gold/ingestion",
                     "base_parameters": {
                         "tablename": "daily_report",
                         "dt_start": "{{job.start_time.iso_date}}",
@@ -192,15 +192,15 @@
                 "task_key": "gold_monthly_report",
                 "depends_on": [
                     {
-                        "task_key": "silver_transacoes"
+                        "task_key": "silver_transactions"
                     },
                     {
-                        "task_key": "silver_transacao_produto"
+                        "task_key": "silver_transactions_product"
                     }
                 ],
                 "run_if": "ALL_SUCCESS",
                 "notebook_task": {
-                    "notebook_path": "src/gold/ingestao",
+                    "notebook_path": "src/gold/ingestion",
                     "base_parameters": {
                         "tablename": "monthly_report",
                         "dt_start": "{{job.start_time.iso_date}}",
@@ -216,15 +216,15 @@
                 "task_key": "gold_churn_report",
                 "depends_on": [
                     {
-                        "task_key": "silver_transacoes"
+                        "task_key": "silver_transactions"
                     },
                     {
-                        "task_key": "silver_transacao_produto"
+                        "task_key": "silver_transactions_product"
                     }
                 ],
                 "run_if": "ALL_SUCCESS",
                 "notebook_task": {
-                    "notebook_path": "src/gold/ingestao",
+                    "notebook_path": "src/gold/ingestion",
                     "base_parameters": {
                         "tablename": "churn_report",
                         "dt_start": "{{job.start_time.iso_date}}",
@@ -240,16 +240,16 @@
                 "task_key": "DS-BRICKS",
                 "depends_on": [
                     {
-                        "task_key": "silver_cliente"
+                        "task_key": "silver_customers"
                     },
                     {
-                        "task_key": "silver_produtos"
+                        "task_key": "silver_products"
                     },
                     {
-                        "task_key": "silver_transacao_produto"
+                        "task_key": "silver_transactions_product"
                     },
                     {
-                        "task_key": "silver_transacoes"
+                        "task_key": "silver_transactions"
                     }
                 ],
                 "run_if": "ALL_SUCCESS",
@@ -261,7 +261,7 @@
             }
         ],
         "git_source": {
-            "git_url": "https://github.com/souzasantos-yuri/wizard_lakehouse",
+            "git_url": "https://github.com/souzasantos-yuri/databricks_lakehouse",
             "git_provider": "gitHub",
             "git_branch": "main"
         },
