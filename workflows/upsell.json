@@ -156,7 +156,7 @@
                     "base_parameters": {
                         "tablename": "products",
                         "id_field": "product_name",
-                        "id_field_old": "NameProduct"
+                        "id_field_old": "idTransactionCart"
                     },
                     "source": "GIT"
                 },
