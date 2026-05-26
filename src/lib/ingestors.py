@@ -143,3 +143,38 @@ class IngestorCDF(IngestorCDC):
     def execute(self):
         df = self.load()
         return self.save(df)
+    
+class IngestorCubo:
+    def __init__(self, spark, catalog, schema_name, table_name):
+        self.spark = spark
+        self.catalog = catalog
+        self.schema_name = schema_name
+        self.table_name = table_name
+        self.table = f"{catalog}.{schema_name}.{table_name}"
+        self.set_query()
+
+    def set_query(self):
+        self.query = utils.import_query(f"{self.table_name}.sql")
+
+    def load(self, **kwargs):
+        df = spark.sql(self.query.format(**kwargs))
+        return df
+    
+    def safe(self, df, date_ref):
+        (df.write
+            .mode("overwrite")
+            .option("replaceWhere", f"date_ref = '{date_ref}'")
+            .format("delta")
+            .saveAsTable(self.table))
+    
+    def backfill(self, dt_start, dt_stop):
+    dates = utils.date_range(dt_start, dt_stop)
+
+    if not utils.table_exists(self.spark, self.catalog, self.schemaname, self.tablename):
+        df = self.load(dt_ref=dates.pop(0))
+        df.write.saveAsTable(self.table)
+
+    for dt in tqdm.tqdm(dates):
+        df = self.load(dt_ref=dt)
+        self.save(df=df, dt_ref=dt)
+        
